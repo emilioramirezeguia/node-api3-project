@@ -1,27 +1,58 @@
-const express = require('express');
-
+const express = require("express");
+const postDB = require("./postDb");
 const router = express.Router();
+const validatePostId = require("../middleware/validatePostId");
 
-router.get('/', (req, res) => {
-  // do your magic!
+// GET all posts
+router.get("/", (req, res) => {
+  postDB
+    .get()
+    .then((posts) => {
+      res.status(200).json(posts);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
 });
 
-router.get('/:id', (req, res) => {
-  // do your magic!
+// GET post by id
+router.get("/:id", validatePostId, (req, res) => {
+  const post = req.post;
+
+  res.status(200).json(post);
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
+// DELETE post by id
+router.delete("/:id", validatePostId, (req, res) => {
+  const post = req.post;
+
+  postDB
+    .remove(post.id)
+    .then((response) => {
+      res.status(204).end();
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
 });
 
-router.put('/:id', (req, res) => {
-  // do your magic!
+// Update (PUT) post by id
+router.put("/:id", validatePostId, (req, res) => {
+  const post = req.post;
+  const postUpdates = req.body;
+
+  if (postUpdates.text) {
+    postDB
+      .update(post.id, postUpdates)
+      .then((response) => {
+        res.status(204).end();
+      })
+      .catch((error) => {
+        res.status(500).json({ error: error.message });
+      });
+  } else {
+    res.status(400).json({ message: "missing required text field " });
+  }
 });
-
-// custom middleware
-
-function validatePostId(req, res, next) {
-  // do your magic!
-}
 
 module.exports = router;
