@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const logger = require("./middleware/logger");
 const userRouter = require("./users/userRouter");
@@ -8,7 +10,8 @@ server.use(express.json());
 server.use(logger);
 
 server.get("/", (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`);
+  const message = process.env.MESSAGE || "It's working (once)";
+  res.status(200).json({ message });
 });
 
 // Requests to any users endpoint is handled by userRouter
